@@ -1,110 +1,125 @@
 #include "link.h"
 
-
 LinkList *creatLinkList()
 {
 	LinkList *pList = malloc(sizeof(LinkList));
-	if (NULL == pList)
+	if(NULL == pList)
 	{
 		perror("fail to malloc");
 		return NULL;
 	}
+
 	pList->pHead = NULL;
 	pList->cLen = 0;
 
 	return pList;
 }
 
-
-int insertHeadLinkList(LinkList *pList,DataType data)
+int insertHeadLinkList(LinkList *pList, DataType data)
 {
 	LinkNode *pInsertNode = malloc(sizeof(LinkNode));
-	if (NULL == pInsertNode)
+	if(NULL == pInsertNode)
 	{
 		perror("fail to malloc");
 		return -1;
 	}
-	pInsertNode->data = data;
 
+	pInsertNode->Data = data;
+	
 	pInsertNode->pNext = pList->pHead;
 	pList->pHead = pInsertNode;
-	pList->cLen++;
 
+	pList->cLen++;
+	
 	return 0;
 }
 
-void showLinkList(LinkList *pList)
+int showLinkList(LinkList *pList)
 {
-	LinkNode *pTmpNode = pList->pHead;
+	LinkNode *pShowNode = pList->pHead;
 
-	while (pTmpNode != NULL)
+	while(pShowNode != NULL)
 	{
-		printf("%d ",pTmpNode->data);
-		pTmpNode = pTmpNode->pNext;
+		printf("%d ", pShowNode->Data);
+		pShowNode = pShowNode->pNext;
 	}
-	printf("\n");
+	puts("");
+	return 0;
 }
 
-int isEmptyLinkList(LinkList *pList)
+int isEmpty(LinkList *pList)
 {
-	return pList->cLen == 0;
-}
-int insertTailLinkList(LinkList *pList,DataType data)
-{
-	LinkNode *pInsertNode = malloc(sizeof(LinkNode));
-	if (NULL == pInsertNode)
+	if(pList->pHead == NULL)
 	{
-		perror("fail to malloc");
-		return -1;
-	}
-	pInsertNode->data = data;
-	pInsertNode->pNext = NULL;
-
-	if (isEmptyLinkList(pList))
-	{
-		insertHeadLinkList(pList,data);
+		return 1;
 	}
 	else
 	{
-		LinkNode *pTmpNode = pList->pHead;
-		while (pTmpNode->pNext != NULL)
-		{
-			pTmpNode = pTmpNode->pNext;
-		}
-		pTmpNode->pNext = pInsertNode;
-		pList->cLen++;
-	}
-
-	return 0;
-}
-int deleteHeadLinkList(LinkList *pList)
-{
-	if (isEmptyLinkList(pList))
-	{
 		return 0;
 	}
-	LinkNode *pFreeNode = pList->pHead;
-	pList->pHead = pFreeNode->pNext;
-	free(pFreeNode);
+}
+
+int insertTailLinkList(LinkList *pList, DataType data)
+{
+	LinkNode *pTmpNode = pList->pHead;
+
+	LinkNode *pInsertNode = malloc(sizeof(LinkNode));
+	if(NULL == pInsertNode)
+	{
+		perror("fail to malloc");
+		return -1;
+	}
+
+	pInsertNode->Data = data;
+	pInsertNode->pNext = NULL;
+
+	if(isEmpty(pList))
+	{
+		insertHeadLinkList(pList, data);
+	}
+
+	while(pTmpNode->pNext != NULL)
+	{
+		pTmpNode = pTmpNode->pNext; 
+	}
+	pTmpNode->pNext = pInsertNode;
+
+	pList->cLen++;
+	return 0;
+
+}
+
+int deleteHead(LinkList *pList)
+{
+	LinkNode *pTmpNode = pList->pHead;
+
+	if(isEmpty(pList))
+	{
+		return -1;
+	}
+
+	pList->pHead = pTmpNode->pNext;
+	free(pTmpNode);
+
 	pList->cLen--;
 
 	return 0;
 }
 
-int deleteTailLinkList(LinkList *pList)
+int deleteTail(LinkList *pList)
 {
-	if (isEmptyLinkList(pList))
+	LinkNode *pTmpNode = pList->pHead;
+	if(isEmpty(pList))
 	{
-		return 0;
+		return -1;
 	}
-	else if (1 == pList->cLen)
+	else if(pList->cLen == 1)
 	{
-		deleteHeadLinkList(pList);
+		deleteHead(pList);
 	}
 	else
 	{
-		LinkNode *pTmpNode = pList->pHead;
-		while (pTmpNode->pNext->pNext != NULL)
+		while(pTmpNode->pNext->pNext != NULL)
 		{
 			pTmpNode = pTmpNode->pNext;
 		}
@@ -112,104 +127,209 @@ int deleteTailLinkList(LinkList *pList)
 		pTmpNode->pNext = NULL;
 		pList->cLen--;
 	}
-
 	return 0;
 }
 
-LinkNode *findLinkNode(LinkList *pList,DataType data)
+LinkNode *findNode(LinkList *pList, DataType data)
 {
 	LinkNode *pTmpNode = pList->pHead;
-	while (pTmpNode != NULL)
+	while(pTmpNode != NULL)
 	{
-		if (pTmpNode->data == data)
+		if(pTmpNode->Data == data)
 		{
 			return pTmpNode;
 		}
 		pTmpNode = pTmpNode->pNext;
 	}
-	
 	return NULL;
 }
-int modifyLinkList(LinkList *pList,DataType olddata,DataType newdata)
+
+int modifyNode(LinkList *pList, DataType oldData, DataType data)
 {
 	LinkNode *pTmpNode = NULL;
-	while ((pTmpNode = findLinkNode(pList,olddata)) != NULL)
+	pTmpNode = findNode(pList, oldData);
+	if(pTmpNode != NULL)
 	{
-		pTmpNode->data = newdata;	
+		pTmpNode->Data = data;
+	}
+
+	return 0;
+}
+int destroyList(LinkList **ppList)
+{
+	while((*ppList)->pHead != NULL)
+	{
+		deleteHead(*ppList);
+	}
+	free(*ppList);
+	*ppList = NULL;
+	return 0;
+}
+
+int converList(LinkList *pList)
+{
+	LinkNode *pTmpNode = pList->pHead;
+	pList->pHead = NULL;
+	LinkNode *pInsertNode = NULL;
+	while(pTmpNode != NULL)
+	{
+		pInsertNode = pTmpNode;
+		pTmpNode = pTmpNode->pNext;
+
+		pInsertNode->pNext = pList->pHead;
+		pList->pHead = pInsertNode;
 	}
 	return 0;
 }
 
-void destroyLinkList(LinkList **ppList)
-{
-	if (isEmptyLinkList(*ppList))
-	{
-		free(*ppList);
-		return ;
-	}
-	while ((*ppList)->pHead != NULL)
-	{
-		deleteHeadLinkList(*ppList);
-	}
-	free(*ppList);
-	*ppList = NULL;
-
-	return ;
-}
-
-LinkNode *findMidLinkList(LinkList *pList)
+LinkNode *findMidNode(LinkList *pList)
 {
 	LinkNode *pFast = pList->pHead;
-	LinkNode *pSlow = pFast;
+	LinkNode *pSlow = pList->pHead;
 
-	while (pFast != NULL)
+	while(pFast != NULL)
 	{
 		pFast = pFast->pNext;
-		if (NULL == pFast)
+		if(pFast == NULL)
 		{
-			break;
+			return pSlow;
 		}
 		pFast = pFast->pNext;
 		pSlow = pSlow->pNext;
 	}
-
 	return pSlow;
 }
-LinkNode *findLastKNode(LinkList *pList,int K)
+
+LinkNode *find_last_k_node(LinkList *pList, int k)
 {
 	LinkNode *pFast = pList->pHead;
-	LinkNode *pSlow = pFast;
-	int i = 0;
-	for (i = 0; i < K;i++)
+	LinkNode *pSlow = pList->pHead;
+
+	while(k--)
 	{
 		pFast = pFast->pNext;
 	}
-	while (pFast != NULL)
+
+	while(pFast != NULL)
 	{
 		pFast = pFast->pNext;
 		pSlow = pSlow->pNext;
 	}
-
 	return pSlow;
 }
-int isLoopLinkList(LinkList *pList)
+
+int is_loop(LinkList *pList)
 {
 	LinkNode *pFast = pList->pHead;
-	LinkNode *pSlow = pFast;
+	LinkNode *pSlow = pList->pHead;
 
-	while (pFast != NULL)
+	while(pFast != NULL)
 	{
 		pFast = pFast->pNext;
-		if (NULL == pFast)
+		if(NULL == pFast)
 		{
 			return 0;
 		}
 		pFast = pFast->pNext;
 		pSlow = pSlow->pNext;
-		if (pFast == pSlow)
+		if(pFast == pSlow)
 		{
 			return 1;
 		}
+	}
+}
+
+LinkNode *josef(LinkList *pList)
+{
+	LinkNode *pFast = pList->pHead;
+	LinkNode *pSlow = NULL;
+	while(pList->cLen > 1)
+	{
+		pSlow = pFast;
+		pFast = pFast->pNext->pNext;
+		pSlow = pSlow->pNext;
+		pSlow->pNext = pFast->pNext;
+		free(pFast);
+		pList->cLen--;
+		pFast = pSlow->pNext;
+	}
+	return pSlow;
+}
+
+int delete_point_node(LinkList *pList, DataType data)
+{
+	if(isEmpty(pList))
+	{
+		return 0;
+	}
+
+	LinkNode *pFast = pList->pHead;
+	LinkNode *pSlow = pList->pHead;
+	
+	while(pFast != NULL)
+	{
+		if(pFast->Data == data)
+		{
+			if(pFast == pSlow)
+			{
+				pList->pHead = pFast->pNext;
+				free(pFast);
+				pFast = pList->pHead;
+				pSlow = pList->pHead;
+			}
+			else
+			{
+				pSlow->pNext = pFast->pNext;
+				free(pFast);
+				pFast = pSlow->pNext;
+			}
+			pList->cLen--;
+		}
+		else
+		{
+			pSlow = pFast;
+			pFast = pFast->pNext;
+		}
+	}
+
+	return 0;
+}
+
+void insert_sort(LinkList *pList)
+{
+	if(isEmpty(pList) || 1 == pList->cLen)
+	{
+		return ;
+	}
+	/* 断开原链表， 指针指向第二个节点*/
+	LinkNode *pTmpNode = pList->pHead->pNext;
+	/* 让第一个节点的指针域为空 */
+	pList->pHead->pNext = NULL;
+
+	LinkNode *pInsertNode = NULL;
+
+	while(pTmpNode != NULL)
+	{
+		pInsertNode = pTmpNode;
+		pTmpNode = pTmpNode->pNext;
+		pInsertNode->pNext = NULL;
+		
+		if(pInsertNode->Data < pList->pHead->Data)
+		{
+			pInsertNode->pNext = pList->pHead;
+			pList->pHead = pInsertNode;
+		}
+		else
+		{
+			LinkNode *ptmp = pList->pHead;
+			while(ptmp != NULL && ptmp->pNext != NULL && ptmp->pNext->Data < pInsertNode->Data)
+			{
+				ptmp = ptmp->pNext;
+			}
+			pInsertNode->pNext = ptmp->pNext;
+			ptmp->pNext = pInsertNode;
+		}
+
 	}
 }
 
@@ -217,67 +337,77 @@ int main(int argc, const char *argv[])
 {
 	LinkList *pList = NULL;
 	LinkNode *pTmpNode = NULL;
+	LinkNode *pMidNode = NULL;
+
 	pList = creatLinkList();
 
-	insertHeadLinkList(pList,1);
-	insertHeadLinkList(pList,2);
-	insertHeadLinkList(pList,3);
-	insertHeadLinkList(pList,4);
-	insertHeadLinkList(pList,4);
-	insertHeadLinkList(pList,4);
-//	insertHeadLinkList(pList,4);
-
-	insertTailLinkList(pList,5);
+	insertHeadLinkList(pList, 4);
+	insertHeadLinkList(pList, 12);
+	insertHeadLinkList(pList, 2);
+	insertHeadLinkList(pList, 10);
+	
+	insertTailLinkList(pList, 5);
+	insertTailLinkList(pList, 0);
+	insertTailLinkList(pList, 7);
+	insertTailLinkList(pList, -1);
 
 	showLinkList(pList);
-#if 0
-	deleteHeadLinkList(pList);
+//	delete_point_node(pList, 3);
+	insert_sort(pList);
+
 	showLinkList(pList);
 
-	deleteTailLinkList(pList);
-	showLinkList(pList);
 
-	pTmpNode = findLinkNode(pList,2);
-	if (NULL != pTmpNode)
+	//deleteHead(pList);
+
+	//deleteTail(pList);
+
+/*
+	pTmpNode = findNode(pList, 3);
+	if(pTmpNode == NULL)
 	{
-		printf("find node %d\n",pTmpNode->data);
+		printf("not found!\n");
 	}
 	else
 	{
-		printf("not find.\n");
+		printf("found it : %d\n", pTmpNode->Data);
+	}
+//	modifyNode(pList, 3, 10);
+
+	showLinkList(pList);
+
+	//converList(pList);
+
+	//showLinkList(pList);
+
+	pMidNode = findMidNode(pList);
+	if(pMidNode != NULL)
+	{
+		printf("mid node : %d\n", pMidNode->Data);
 	}
 
-	modifyLinkList(pList,4,10);
-	showLinkList(pList);
-#endif
-
-	pTmpNode = findMidLinkList(pList);
-	printf("mid node %d\n",pTmpNode->data);
-
-	pTmpNode = findLastKNode(pList,3);
-	printf("last k node %d\n",pTmpNode->data);
-	
+	pTmpNode = find_last_k_node(pList, 3);
+	printf("last k  node : %d\n", pTmpNode->Data);
 	pTmpNode = pList->pHead;
-	while (pTmpNode->pNext != NULL)
+	while(pTmpNode->pNext != NULL)
 	{
 		pTmpNode = pTmpNode->pNext;
 	}
 	pTmpNode->pNext = pList->pHead;
 
-	int ret = isLoopLinkList(pList);
-	if (ret)
+	int ret = is_loop(pList);
+	if(ret)
 	{
-		printf("Is loop\n");
+		printf("is loop\n");
 	}
 	else
 	{
-		printf("Is not loop\n");
+		printf("is not a loop");
 	}
 
-
-//	destroyLinkList(&pList);
-
+	pTmpNode = josef(pList);
+	printf("last one %d\n", pTmpNode->Data);
+//	destroyList(&pList);
+*/
 	return 0;
 }
-
-

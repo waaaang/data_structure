@@ -8,8 +8,8 @@ typedef int DataType;
 
 typedef struct node
 {
-	DataType data;
-	struct node *pNext;
+	DataType Data;
+	struct node * pNext;
 }LinkNode;
 
 typedef struct list
@@ -19,6 +19,5 @@ typedef struct list
 }LinkList;
 
 
+
 #endif
-
-
